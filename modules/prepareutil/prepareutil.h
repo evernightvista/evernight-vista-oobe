@@ -32,6 +32,8 @@ public:
     bool usingDarkTheme() const;
     void setUsingDarkTheme(bool usingDarkTheme);
 
+    Q_INVOKABLE QStringList welcomeGreetings(bool isMobile) const;
+
 Q_SIGNALS:
     void scalingChanged();
     void usingDarkThemeChanged();

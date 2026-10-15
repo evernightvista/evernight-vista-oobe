@@ -24,6 +24,32 @@ Item {
 
     signal requestNextPage()
 
+    readonly property list<string> welcomeGreetings:
+        Prepare.PrepareUtil.welcomeGreetings(Kirigami.Settings.isMobile)
+    property int greetingIndex: 0
+    readonly property int greetingHoldDuration: Kirigami.Units.veryLongDuration * 12
+    readonly property int greetingFadeDuration: Kirigami.Units.veryLongDuration * 3
+
+    Timer {
+        id: greetingRotationTimer
+        interval: root.greetingHoldDuration + root.greetingFadeDuration
+        repeat: true
+        running: root.landingActive && Kirigami.Units.longDuration > 1
+        onTriggered: {
+            greetingLabel.opacity = 0;
+            greetingFadeInTimer.restart();
+        }
+    }
+
+    Timer {
+        id: greetingFadeInTimer
+        interval: root.greetingFadeDuration
+        onTriggered: {
+            root.greetingIndex = (root.greetingIndex + 1) % root.welcomeGreetings.length;
+            greetingLabel.opacity = 1;
+        }
+    }
+
     function activateLanding(): void {
         backgroundImage.scale = scaleLanding;
         contentOpacityAnim.to = 1;
@@ -130,16 +156,22 @@ Item {
             spacing: Kirigami.Units.largeSpacing
 
             Label {
+                id: greetingLabel
                 Layout.fillWidth: true
-                text: Kirigami.Settings.isMobile
-                    ? i18n("Welcome to<br/><b>Plasma Mobile</b>")
-                    : i18n("Welcome to<br/><b>Plasma Desktop</b>")
+                text: root.welcomeGreetings[root.greetingIndex]
 
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
 
                 font.pointSize: 18
                 color: "white"
+
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: root.greetingFadeDuration
+                        easing.type: Easing.InOutQuad
+                    }
+                }
             }
 
             Button {
