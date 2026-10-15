@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kiss\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"POT-Creation-Date: 2025-11-20 00:44+0000\n"
-"PO-Revision-Date: 2025-11-20 04:49+0100\n"
+"POT-Creation-Date: 2026-08-21 00:47+0000\n"
+"PO-Revision-Date: 2026-01-07 06:46+0100\n"
 "Last-Translator: Temuri Doghonadze <temuri.doghonadze@gmail.com>\n"
 "Language-Team: Georgian <kde-i18n-doc@kde.org>\n"
 "Language: ka\n"
@@ -28,18 +28,18 @@ msgctxt "EMAIL OF TRANSLATORS"
 msgid "Your emails"
 msgstr "temuri.doghonadze@gmail.com"
 
-#: modules/account/contents/ui/main.qml:67
+#: modules/account/contents/ui/main.qml:104
 #, kde-format
 msgid "We need a few details to complete the setup."
 msgstr "მორგების დასასრულებლად რამდენიმე დეტალი დაგვჭირდება."
 
-#: modules/account/contents/ui/main.qml:78
+#: modules/account/contents/ui/main.qml:124
 #, kde-format
 msgctxt "@info"
 msgid "This user will be an administrator."
 msgstr "ეს მომხმარებელი ადმინისტრატორი იქნება."
 
-#: modules/account/contents/ui/main.qml:82
+#: modules/account/contents/ui/main.qml:135
 #, kde-kuit-format
 msgctxt "@info"
 msgid ""
@@ -52,31 +52,31 @@ msgstr ""
 "პროგრამები და ექნება წვდომა სისტემაში არსებულ ყველა ფაილთან.<nl/><nl/>სჯობს, "
 "ამ მომხმარებელს რთული პაროლი დაუყენოთ."
 
-#: modules/account/contents/ui/main.qml:95
+#: modules/account/contents/ui/main.qml:150
 #, kde-format
 msgctxt "@label:textbox"
 msgid "Full Name"
 msgstr "სრული სახელი"
 
-#: modules/account/contents/ui/main.qml:113
+#: modules/account/contents/ui/main.qml:175
 #, kde-format
 msgctxt "@label:textbox"
 msgid "Username"
 msgstr "მომხმარებლის სახელი"
 
-#: modules/account/contents/ui/main.qml:132
+#: modules/account/contents/ui/main.qml:202
 #, kde-format
 msgctxt "@label:textbox"
 msgid "Password"
 msgstr "პაროლი"
 
-#: modules/account/contents/ui/main.qml:146
+#: modules/account/contents/ui/main.qml:223
 #, kde-format
 msgctxt "@label:textbox"
 msgid "Confirm Password"
 msgstr "გაიმეორეთ პაროლი"
 
-#: modules/account/contents/ui/main.qml:164
+#: modules/account/contents/ui/main.qml:255
 #, kde-format
 msgid "Passwords must match"
 msgstr "პაროლები არ ემთხვევა"
@@ -190,61 +190,127 @@ msgstr "წაშლა"
 msgid "Add APN"
 msgstr "APN-ის დამატება"
 
-#: modules/finished/contents/ui/main.qml:30
+#: modules/finished/contents/ui/main.qml:25
+#, kde-format
+msgctxt "%1 is the distro name"
+msgid "Your device is now ready.<br /><br />Enjoy <b>%1</b>!"
+msgstr "თქვენი მოწყობილობა ახლა მზადაა. <br /><br />ისიამოვნეთ <b>%1-ით</b>!"
+
+#: modules/finished/contents/ui/main.qml:34
 #, kde-format
 msgctxt "%1 is the distro name"
 msgid ""
-"Your device is now ready. <br /><br />After clicking <b>Finish</b> you will "
+"Your device is now ready.<br /><br />After clicking <b>Finish</b> you will "
 "be able to sign in to your new account.<br /><br />Enjoy <b>%1</b>!"
 msgstr ""
 "თქვენი მოწყობილობა ახლა მზადაა. <br /><br /><b>დასრულებაზე</b>დაწკაპუნების "
-"შემდეგ შეგეძლებათ, თქვენი ანგარიშით შეხვიდეთ.<br /><br />ისიამოვნეთ "
+"შემდეგ შეგეძლებათ, თქვენი ახალი ანგარიშით შეხვიდეთ.<br /><br />ისიამოვნეთ "
 "დისტრიბუტივით <b>%1</b>!"
 
-#: modules/keyboard/contents/ui/main.qml:161
+#: modules/hostname/contents/ui/main.qml:95
+#, kde-format
+msgctxt "@info:usagetip"
+msgid "What should this device be called?"
+msgstr "რა უნდა ერქვას ამ მოწყობილობას?"
+
+#: modules/hostname/contents/ui/main.qml:104
+#, kde-format
+msgctxt "@label:textbox"
+msgid "Hostname:"
+msgstr "ჰოსტის სახელი:"
+
+#: modules/hostnameutil/hostnameutil.cpp:94
+#, kde-format
+msgctxt "@info"
+msgid "Hostname cannot be empty."
+msgstr "ჰოსტის სახელი ცარიელი ვერ იქნება."
+
+#: modules/hostnameutil/hostnameutil.cpp:96
+#, kde-format
+msgctxt "@info"
+msgid "Hostname cannot be “localhost” or “localhost.localdomain”."
+msgstr "ჰოსტის სახელი ვერ იქნება \"localhost\", ან \"localhost.localdomain\"."
+
+#: modules/hostnameutil/hostnameutil.cpp:98
+#, kde-format
+msgctxt "@info"
+msgid "Hostname is too long (maximum 253 characters)."
+msgstr "ჰოსტის სახელი მეტისმეტად გრძელია (მაქს 253 სიმბოლო)."
+
+#: modules/hostnameutil/hostnameutil.cpp:100
+#, kde-format
+msgctxt "@info"
+msgid "Hostname cannot start with a dot."
+msgstr "ჰოსტის სახელი არ შეიძლება, წერტილით იწყებოდეს."
+
+#: modules/hostnameutil/hostnameutil.cpp:102
+#, kde-format
+msgctxt "@info"
+msgid "Hostname cannot end with a dot."
+msgstr "ჰოსტის სახელი არ შეიძლება, წერტილით სრულდებოდეს."
+
+#: modules/hostnameutil/hostnameutil.cpp:104
+#, kde-format
+msgctxt "@info"
+msgid "Hostname cannot contain consecutive dots."
+msgstr "ჰოსტის სახელი არ შეიძლება, ზედიზედ ორ წერტილს შეიცავდეს."
+
+#: modules/hostnameutil/hostnameutil.cpp:106
+#, kde-format
+msgctxt "@info"
+msgid "Hostname labels cannot be empty."
+msgstr "ჰოსტ სახელის ჭდეები არ შეიძლება, ცარიელი იყოს."
+
+#: modules/hostnameutil/hostnameutil.cpp:108
+#, kde-format
+msgctxt "@info"
+msgid "Each hostname label must be at most 63 characters."
+msgstr "თითოეული ჰოსტის სახელის ჭდე მაქს 63 სიმბოლო უნდა იყოს."
+
+#: modules/hostnameutil/hostnameutil.cpp:110
+#, kde-format
+msgctxt "@info"
+msgid ""
+"Hostnames may contain letters, numbers, and hyphens. Each label must start "
+"and end with a letter or number."
+msgstr ""
+"ჰოსტის სახელები, შეიძლება, შეიცავდნენ ასოებს, ციფრებს და ტირეებს. თითოეული "
+"ჭდე უნდა იწყებოდეს და სრულდებოდეს ასოებით ან ციფრით."
+
+#: modules/keyboard/contents/ui/main.qml:188
 #, kde-format
 msgid "Select your keyboard layout and language."
 msgstr "აირჩიეთ თქვენი კლავიატურის განლაგება და ენა."
 
-#: modules/language/contents/ui/main.qml:42
+#: modules/language/contents/ui/main.qml:46
 #, kde-format
 msgid "Please select your preferred language."
 msgstr "აირჩიეთ სასურველი ენა."
 
-#: modules/language/contents/ui/main.qml:48
+#: modules/language/contents/ui/main.qml:52
 #, kde-format
 msgid "Search languages…"
 msgstr "ენის მოძებნა…"
 
-#: modules/prepare/contents/ui/main.qml:38
-#, kde-format
-msgid "Adjust the size of elements on the screen."
-msgstr "მოირგეთ ეკრანზე არსებული ელემენტების ზომები."
-
-#: modules/prepare/contents/ui/main.qml:49
-#, kde-format
-msgid "Display Scaling"
-msgstr "ეკრანის მასშტაბი"
-
-#: modules/prepare/contents/ui/main.qml:74
+#: modules/prepare/contents/ui/main.qml:76
 #, kde-format
 msgid "Dark Theme"
 msgstr "მუქი თემა"
 
-#: modules/time/contents/ui/main.qml:32
+#: modules/time/contents/ui/main.qml:41
 #, kde-format
 msgid "Select your time zone."
 msgstr "აირჩიეთ თქვენი დროის სარტყელი."
 
-#: modules/wifi/contents/ui/ConnectionItemDelegate.qml:94
-#, kde-format
-msgid "Connect to"
-msgstr "დაკავშირება"
-
-#: modules/wifi/contents/ui/main.qml:76
+#: modules/wifi/contents/ui/main.qml:75
 #, kde-format
 msgid "Connect to a WiFi network for network access."
 msgstr "ქსელთან წვდომისთვის მიუერთდით WiFi-ს."
+
+#: modules/wifi/contents/ui/main.qml:167
+#, kde-format
+msgid "Connect to"
+msgstr "დაკავშირება"
 
 #: modules/wifi/contents/ui/PasswordField.qml:14
 #, kde-format
@@ -256,7 +322,7 @@ msgstr "პაროლი:"
 msgid "Invalid input."
 msgstr "არასწორი შეყვანა."
 
-#: src/main.cpp:35 src/qml/Main.qml:14
+#: src/main.cpp:35 src/qml/Main.qml:13
 #, kde-format
 msgid "Plasma Setup"
 msgstr "Plasma-ის მორგება"
@@ -276,44 +342,50 @@ msgstr "© 2021-2024 KDE-ის საზოგადოება"
 msgid "Remove the Plasma Setup autologin configuration."
 msgstr "მორგების ავტოშესვლის კონფიგურაციის წაშლა."
 
-#: src/qml/LandingComponent.qml:103
+#: src/qml/LandingComponent.qml:135
 #, kde-format
 msgid "Welcome to<br/><b>Plasma Mobile</b>"
 msgstr "მოგესალმებათ <b>Plasma Mobile</b>"
 
-#: src/qml/LandingComponent.qml:103
+#: src/qml/LandingComponent.qml:136
 #, kde-format
 msgid "Welcome to<br/><b>Plasma Desktop</b>"
 msgstr "მოგესალმებათ<br/><b>Plasma Desktop</b>"
 
-#: src/qml/LandingComponent.qml:117
+#: src/qml/LandingComponent.qml:150
 #, kde-format
 msgid "Begin Setup"
 msgstr "მორგების დაწყება"
 
-#: src/qml/LandingComponent.qml:144
+#: src/qml/LandingComponent.qml:186
 #, kde-format
 msgctxt "%1 is the distro name"
 msgid "Powered by<br/><b>%1</b>"
 msgstr "<br/><b>%1</b>-ის მიერ"
 
-#: src/qml/Wizard.qml:286
+#: src/qml/Wizard.qml:316
 #, kde-format
 msgctxt "@action:button"
 msgid "Back"
 msgstr "უკან"
 
-#: src/qml/Wizard.qml:302
+#: src/qml/Wizard.qml:335
 #, kde-format
 msgctxt "@action:button"
 msgid "Next"
 msgstr "შემდეგი"
 
-#: src/qml/Wizard.qml:314
+#: src/qml/Wizard.qml:352
 #, kde-format
 msgctxt "@action:button"
 msgid "Finish"
 msgstr "დასრულება"
+
+#~ msgid "Adjust the size of elements on the screen."
+#~ msgstr "მოირგეთ ეკრანზე არსებული ელემენტების ზომები."
+
+#~ msgid "Display Scaling"
+#~ msgstr "ეკრანის მასშტაბი"
 
 #~ msgid "Upload new avatar"
 #~ msgstr "ახალი ავატარის ატვირთვა"
@@ -400,11 +472,6 @@ msgstr "დასრულება"
 #~ "Adjust the screen brightness to be comfortable for the installation "
 #~ "process."
 #~ msgstr "მოირგეთ ეკრანის სიკაშკაშე დაყენების პროცესისთვის."
-
-#~ msgctxt "%1 is the distro name"
-#~ msgid "Your device is now ready. <br /><br />Enjoy <b>%1</b>!"
-#~ msgstr ""
-#~ "თქვენი მოწყობილობა ახლა მზადაა. <br /><br />ისიამოვნეთ <b>%1-ით</b>!"
 
 #~ msgid "Language"
 #~ msgstr "ენა"

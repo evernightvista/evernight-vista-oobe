@@ -1,10 +1,14 @@
 // SPDX-FileCopyrightText: 2025 Kristen McWilliam <kristen@kde.org>
+// SPDX-FileCopyrightText: 2026 Tiziano Gaia <ti.gaia@proton.me>
 // SPDX-License-Identifier: LGPL-2.1-or-later
 
 #pragma once
 
 #include <QObject>
 #include <QQmlEngine>
+#include <QStringListModel>
+
+#include "languagesortfilterproxymodel.h"
 
 /**
  * Handles language choice.
@@ -21,12 +25,12 @@ class LanguageUtil : public QObject
     QML_SINGLETON
 
     /**
-     * List of available languages in the system.
+     * Model containing the available languages.
      *
-     * A list of language codes that are available for use in the application.
-     * Each entry in the list represents a language that can be selected by the user.
+     * This model supports filtering and is exposed directly to QML views
+     * that display the available language choices.
      */
-    Q_PROPERTY(QStringList availableLanguages READ availableLanguages NOTIFY availableLanguagesChanged)
+    Q_PROPERTY(LanguageSortFilterProxyModel *languageModel READ languageModel CONSTANT)
 
     /**
      * The language code of the currently selected language.
@@ -36,7 +40,8 @@ class LanguageUtil : public QObject
 public:
     explicit LanguageUtil(QObject *parent = nullptr);
 
-    QStringList availableLanguages() const;
+    LanguageSortFilterProxyModel *languageModel();
+
     QString currentLanguage() const;
     void setCurrentLanguage(const QString &language);
 
@@ -46,8 +51,8 @@ public:
     Q_INVOKABLE void applyLanguage();
 
 Q_SIGNALS:
-    void availableLanguagesChanged();
     void currentLanguageChanged();
+    void initialLanguageOverrideApplied();
 
 private:
     /**
@@ -66,11 +71,23 @@ private:
     /**
      * Loads the available languages from the system.
      *
-     * This function populates the availableLanguages list with the languages
+     * This function populates the language model with the languages
      * that are supported by Plasma.
      */
     void loadAvailableLanguages();
 
-    QStringList m_availableLanguages;
+    /**
+     * Overrides the initial language if it is not available.
+     *
+     * If the current system language at boot is not in the list of available languages
+     * the picker uses, this function defaults to English and emits a signal to
+     * notify that an override has been applied so the UI can show the correct selection.
+     *
+     * This ensures that the language picker always starts with a valid default selection.
+     */
+    void overrideInitialLanguageIfNeeded();
+
+    QStringListModel m_languageModel;
+    LanguageSortFilterProxyModel m_languageProxyModel;
     QString m_currentLanguage;
 };

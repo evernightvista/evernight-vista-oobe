@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2023 Devin Lin <devin@kde.org>
 // SPDX-FileCopyrightText: 2025 Kristen McWilliam <kristen@kde.org>
+// SPDX-FileCopyrightText: 2026 Tiziano Gaia <ti.gaia@proton.me>
 //
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -72,9 +73,19 @@ Kirigami.Page {
         requestPreviousPage();
     }
 
+    function activateLanding(): void {
+        landingComponent.activateLanding();
+    }
+
     function finishFinalPage(): void {
         // Finalize the initial setup process and exit the wizard.
         InitialStartUtil.finish();
+    }
+
+    function activatePage(item): void {
+        if (item && item.module && typeof item.module.onPageActivated === "function") {
+            item.module.onPageActivated();
+        }
     }
 
     function requestNextPage(): void {
@@ -91,13 +102,15 @@ Kirigami.Page {
         // This allows the module to perform any necessary setup, and check if
         // any data it relies on has been updated since the last activation.
         if (currentIndex + 1 < stepCount) {
-            let nextItem = stepsRepeater.itemAt(currentIndex + 1);
-            if (nextItem && nextItem.module && typeof nextItem.module.onPageActivated === "function") {
-                nextItem.module.onPageActivated();
-            }
+            activatePage(stepsRepeater.itemAt(currentIndex + 1));
         }
 
         currentIndex++;
+
+        if (root.onFinalPage) {
+            finishButton.forceActiveFocus(Qt.TabFocusReason);
+        }
+
         stepHeading.changeText(currentStepItem.name);
 
         currentStepItemX = root.width;
@@ -116,12 +129,14 @@ Kirigami.Page {
 
         if (currentIndex === 0) {
             root.showingLanding = true;
-            landingComponent.returnToLanding();
+            landingComponent.activateLanding();
         } else {
             nextStepItemX = 0;
 
             currentIndex--;
             stepHeading.changeText(currentStepItem.name);
+
+            activatePage(stepsRepeater.itemAt(currentIndex));
 
             currentStepItemX = -root.width;
             currentStepItem.visible = true;
@@ -137,9 +152,18 @@ Kirigami.Page {
         id: landingComponent
         anchors.fill: parent
 
+        landingActive: root.showingLanding
+        /*
+         * On desktop, the landing page remains visible as a backdrop while the wizard steps float over it as a card.
+         * On mobile, the steps take up the full screen so the landing is hidden once the user navigates into the wizard (showingLanding becomes false).
+         */
+        visible: !Kirigami.Settings.isMobile || root.showingLanding
+
         onRequestNextPage: {
             root.showingLanding = false;
             stepHeading.changeText(root.currentStepItem.name);
+
+            activatePage(root.currentStepItem);
         }
     }
 
@@ -168,6 +192,8 @@ Kirigami.Page {
     Item {
         id: stepsComponent
         anchors.fill: parent
+
+        enabled: !root.showingLanding
 
         // animation when we switch to step stage
         opacity: root.showingLanding ? 0 : 1
@@ -203,8 +229,12 @@ Kirigami.Page {
             radius: Kirigami.Settings.isMobile ? 0 : Kirigami.Units.cornerRadius + 8
 
             anchors {
+                // On mobile, behave like a full-height page (no floating card)
                 fill: Kirigami.Settings.isMobile ? parent : undefined
-                topMargin: Kirigami.Settings.isMobile ? root.height * 0.3 : undefined
+
+                topMargin: 0
+
+                // Only center the floating card on desktop
                 centerIn: Kirigami.Settings.isMobile ? undefined : parent
             }
 
@@ -283,10 +313,13 @@ Kirigami.Page {
                     Button {
                         Layout.alignment: Qt.AlignLeft
 
-                        text: i18nc("@action:button", "Back") // qmllint disable unqualified
+                        text: i18nc("@action:button", "Back")
                         icon.name: "arrow-left-symbolic"
 
                         onClicked: root.requestPreviousPage()
+
+                        Keys.onEnterPressed: clicked()
+                        Keys.onReturnPressed: clicked()
                     }
 
                     Item {
@@ -299,24 +332,37 @@ Kirigami.Page {
                         LayoutMirroring.enabled: Qt.application.layoutDirection === Qt.LeftToRight // qmllint disable missing-property
 
                         visible: !root.onFinalPage
-                        text: i18nc("@action:button", "Next") // qmllint disable unqualified
+                        text: i18nc("@action:button", "Next")
                         icon.name: "arrow-right-symbolic"
 
                         enabled: root.currentModule.nextEnabled
 
                         onClicked: root.requestNextPage()
+
+                        Keys.onEnterPressed: clicked()
+                        Keys.onReturnPressed: clicked()
                     }
 
                     Button {
+                        id: finishButton
+
                         Layout.alignment: Qt.AlignRight
 
                         visible: root.onFinalPage
-                        text: i18nc("@action:button", "Finish") // qmllint disable unqualified
+                        text: i18nc("@action:button", "Finish")
                         icon.name: "dialog-ok-symbolic"
 
                         enabled: root.currentModule.nextEnabled
 
-                        onClicked: root.finishFinalPage()
+                        onClicked: {
+                            // Ensure the `Finish` button can only be click once.
+                            root.currentModule.nextEnabled = false;
+                            // Finalize and exit the wizard.
+                            root.finishFinalPage();
+                        }
+
+                        Keys.onEnterPressed: clicked()
+                        Keys.onReturnPressed: clicked()
                     }
                 }
             }
@@ -340,12 +386,15 @@ Kirigami.Page {
         }
 
         visible: index === 0 // the binding is broken later
-        contentItem: module?.contentItem
+        contentItem: item.module?.contentItem
 
         Binding {
             target: item.module
-            property: 'cardWidth'
-            value: Math.min(Kirigami.Units.gridUnit * 30, item.contentItem.width - Kirigami.Units.gridUnit * 2)
+            property: "cardWidth"
+            value: Math.min(
+                Kirigami.Units.gridUnit * 30,
+                item.width - item.leftPadding - item.rightPadding - Kirigami.Units.gridUnit * 2
+            )
         }
 
         clip: true
@@ -387,6 +436,21 @@ Kirigami.Page {
 
             function onCurrentIndexChanged(): void {
                 item.updateRootItems();
+            }
+        }
+
+        // Allow modules to request the default "Next" action
+        Connections {
+            target: item.module
+
+            function onNextRequested(): void {
+                if (root.onFinalPage) {
+                    return;
+                }
+
+                if (root.currentModule === item.module && item.module.nextEnabled) {
+                    root.requestNextPage();
+                }
             }
         }
     }

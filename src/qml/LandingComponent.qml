@@ -1,5 +1,8 @@
 // SPDX-FileCopyrightText: 2023 Devin Lin <devin@kde.org>
+// SPDX-FileCopyrightText: 2026 Tiziano Gaia <ti.gaia@proton.me>
+//
 // SPDX-License-Identifier: GPL-2.0-or-later
+
 
 import QtCore
 import QtQuick
@@ -17,12 +20,16 @@ Item {
     readonly property real scaleLanding: 1.2
     readonly property real scaleSteps: 1
 
+    property bool landingActive: true
+
     signal requestNextPage()
 
-    function returnToLanding() {
+    function activateLanding(): void {
         backgroundImage.scale = scaleLanding;
         contentOpacityAnim.to = 1;
         contentOpacityAnim.restart();
+
+        button.forceActiveFocus(Qt.TabFocusReason);
     }
 
     property real contentOpacity: 0
@@ -43,20 +50,22 @@ Item {
         readonly property bool isLandscape: width >= height
 
         source: {
-            // default wallpaper background
-            const imgFile = isLandscape ? '3840x2160.jxl' : '3840x2160.jxl';
-            const lightWallpaperFolder = 'wallpapers/Utopia/contents/images/';
-            const darkWallpaperFolder = 'wallpapers/Utopia/contents/images_dark/';
+            const landscapeFile = "3840x2160.jxl";
+            const portraitFile  = "3840x2160.jxl";
 
-            const wallpaperUrl = StandardPaths.locate(
-                StandardPaths.GenericDataLocation,
-                (Prepare.PrepareUtil.usingDarkTheme ? darkWallpaperFolder : lightWallpaperFolder) + imgFile
-            );
+            const lightFolder = "wallpapers/Nova/contents/images/";
+            const darkFolder  = "wallpapers/Nova/contents/images_dark/";
+            const themedFolder = Prepare.PrepareUtil.usingDarkTheme ? darkFolder : lightFolder;
 
-            if (!wallpaperUrl) {
-                return StandardPaths.locate(StandardPaths.GenericDataLocation, lightWallpaperFolder + imgFile);
+            function locate(file) {
+                return StandardPaths.locate(StandardPaths.GenericDataLocation, themedFolder + file)
+                    || StandardPaths.locate(StandardPaths.GenericDataLocation, lightFolder + file);
             }
-            return wallpaperUrl;
+
+            const primary = isLandscape ? landscapeFile : portraitFile;
+            const secondary = isLandscape ? portraitFile : landscapeFile;
+
+            return locate(primary) || locate(secondary) || "";
         }
         fillMode: Image.PreserveAspectCrop
 
@@ -87,67 +96,106 @@ Item {
         }
     }
 
+    // split layout decisions into narrow vs short:
+    // - isNarrow controls layout mode (desktop vs compact bottom bar)
+    // - isShort only enables scrolling / tighter spacing, & keeps desktop layout if width is fine
+    readonly property bool isNarrow: width < Kirigami.Units.gridUnit * 34
+    readonly property bool isShort:  height < Kirigami.Units.gridUnit * 22
+    readonly property bool isTight:  isNarrow || isShort
+
     ColumnLayout {
-        opacity: root.contentOpacity
+        anchors.fill: parent
+
+        anchors.leftMargin:  root.isTight ? Kirigami.Units.gridUnit * 2 : Kirigami.Units.gridUnit * 4
+        anchors.rightMargin: root.isTight ? Kirigami.Units.gridUnit * 2 : Kirigami.Units.gridUnit * 4
+        anchors.bottomMargin: Kirigami.Units.gridUnit * 2
         spacing: Kirigami.Units.largeSpacing
 
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.leftMargin: Kirigami.Units.gridUnit * 4
-        anchors.rightMargin: Kirigami.Units.gridUnit * 4
-
-        Label {
+        // spacers expand only on roomy screens to keep center content centered
+        Item {
             Layout.fillWidth: true
-
-            text: Kirigami.Settings.isMobile ? i18n("Welcome to<br/><b>Plasma Mobile</b>") : i18n("Welcome to<br/><b>Plasma Desktop</b>")
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.Wrap
-
-            font.pointSize: 18
-            color: "white"
+            Layout.fillHeight: !root.isTight
+            Layout.preferredHeight: root.isTight ? Kirigami.Units.largeSpacing : 0
         }
 
-        Button {
-            id: button
+        ColumnLayout {
+            id: centerBlock
 
-            Layout.alignment: Qt.AlignHCenter
+            enabled: root.landingActive
 
             opacity: root.contentOpacity
-            text: i18n("Begin Setup")
-            icon.name: "plasma-symbolic"
 
-            onClicked: {
-                backgroundImage.scale = scaleSteps;
-                contentOpacityAnim.to = 0;
-                contentOpacityAnim.restart();
-                root.requestNextPage()
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
+            spacing: Kirigami.Units.largeSpacing
+
+            Label {
+                Layout.fillWidth: true
+                text: Kirigami.Settings.isMobile
+                    ? i18n("Welcome to<br/><b>Plasma Mobile</b>")
+                    : i18n("Welcome to<br/><b>Plasma Desktop</b>")
+
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+
+                font.pointSize: 18
+                color: "white"
+            }
+
+            Button {
+                id: button
+                Layout.alignment: Qt.AlignHCenter
+
+                opacity: root.contentOpacity
+                text: i18n("Begin Setup")
+                icon.name: "plasma-symbolic"
+
+                onClicked: {
+                    backgroundImage.scale = scaleSteps;
+                    contentOpacityAnim.to = 0;
+                    contentOpacityAnim.restart();
+                    root.requestNextPage()
+                }
+
+                Keys.onEnterPressed: clicked()
+                Keys.onReturnPressed: clicked()
+            }
+        }
+
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: !root.isTight
+            Layout.preferredHeight: root.isTight ? Kirigami.Units.largeSpacing : 0
+        }
+
+        // only switch to compact bottom bar when narrow, not merely short
+        Item {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignBottom
+            Layout.preferredHeight: root.isNarrow
+                ? poweredBy.implicitHeight + Kirigami.Units.smallSpacing + sessionMenu.implicitHeight
+                : Math.max(poweredBy.implicitHeight, sessionMenu.implicitHeight)
+
+            Kirigami.Heading {
+                id: poweredBy
+
+                opacity: root.contentOpacity
+                width: parent.width
+                y: root.isNarrow ? 0 : (parent.height - height) / 2
+
+                text: i18nc("%1 is the distro name", "Powered by<br/><b>%1</b>", InitialStartUtil.distroName)
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.Wrap
+
+                level: 5
+                color: "white"
+            }
+
+            SessionMenu {
+                id: sessionMenu
+                x: root.isNarrow ? (parent.width - width) / 2 : parent.width - width
+                y: root.isNarrow ? poweredBy.height + Kirigami.Units.smallSpacing : (parent.height - height) / 2
             }
         }
     }
-
-    ColumnLayout {
-        opacity: root.contentOpacity
-        spacing: Kirigami.Units.largeSpacing
-
-        anchors {
-            left: parent.left
-            right: parent.right
-            bottom: parent.bottom
-            leftMargin: Kirigami.Units.gridUnit * 4
-            rightMargin: Kirigami.Units.gridUnit * 4
-            bottomMargin: Kirigami.Units.gridUnit * 2
-        }
-
-        Kirigami.Heading {
-            Layout.fillWidth: true
-            text: i18nc("%1 is the distro name", "Powered by<br/><b>%1</b>", InitialStartUtil.distroName)
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.Wrap
-
-            level: 5
-            color: "white"
-        }
-    }
 }
-

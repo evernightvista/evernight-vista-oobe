@@ -5,10 +5,11 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-project(plasma-setup VERSION "0.1.0")
+set(PROJECT_VERSION "6.8.80")
+project(plasma-setup VERSION ${PROJECT_VERSION})
 
-set(QT_MIN_VERSION "6.6.0")
-set(KF_MIN_VERSION "6.5.0")
+set(QT_MIN_VERSION "6.11.0")
+set(KF6_MIN_VERSION "6.30.0")
 
 include(FeatureSummary)
 
@@ -16,7 +17,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################# set KDE specific information #################
-find_package(ECM ${KF_MIN_VERSION} REQUIRED NO_MODULE)
+find_package(ECM ${KF6_MIN_VERSION} REQUIRED NO_MODULE)
 
 # where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ECM_MODULE_PATH})
@@ -42,7 +43,7 @@ set_package_properties(Qt6 PROPERTIES
     TYPE REQUIRED
     PURPOSE "Required application components"
 )
-find_package(KF6 ${KF_MIN_VERSION} COMPONENTS Auth CoreAddons I18n Package Config)
+find_package(KF6 ${KF6_MIN_VERSION} COMPONENTS Auth CoreAddons I18n Package Config)
 set_package_properties(KF6 PROPERTIES
     TYPE REQUIRED
     PURPOSE "Required application components"
@@ -61,15 +62,15 @@ find_package(KF6Screen CONFIG REQUIRED)
 find_package(LibKWorkspace REQUIRED)
 find_package(PkgConfig REQUIRED)
 
-feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
 ################# build and install #################
+
+set(LOGIN_DEFS_PATH "/etc/login.defs" CACHE PATH "Path to the login.defs file")
 
 configure_file(config-plasma-setup.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-plasma-setup.h)
 
 ecm_set_disabled_deprecation_versions(
     QT 6.8.3
-    KF 6.13.0
+    KF 6.27.0
 )
 
 add_definitions(-DQT_NO_CAST_FROM_ASCII -DQT_NO_CAST_TO_ASCII -DQT_NO_URL_CAST_FROM_STRING)
@@ -85,7 +86,7 @@ kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
 
 kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
 
-feature_summary(WHAT ALL INCLUDE_QUIET_PACKAGES FATAL_ON_MISSING_REQUIRED_PACKAGES)
+feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
 
 ki18n_install(po)
 

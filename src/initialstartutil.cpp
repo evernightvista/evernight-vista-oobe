@@ -9,6 +9,7 @@
 
 #include <KAuth/Action>
 #include <KAuth/ExecuteJob>
+#include <KLocalizedString>
 
 #include <QApplication>
 
@@ -28,6 +29,18 @@ QString InitialStartUtil::distroName() const
 
 void InitialStartUtil::finish()
 {
+    doUserCreationSteps();
+    createCompletionFlag();
+    logOut();
+}
+
+void InitialStartUtil::doUserCreationSteps()
+{
+    if (m_accountController->hasExistingUsers()) {
+        qCInfo(PlasmaSetup) << "Skipping user creation steps since existing users were detected.";
+        return;
+    }
+
     const bool userCreated = m_accountController->createUser();
     if (!userCreated) {
         qCWarning(PlasmaSetup) << "Failed to create user:" << m_accountController->username();
@@ -46,14 +59,15 @@ void InitialStartUtil::finish()
     DisplayUtil displayUtil;
     displayUtil.setGlobalThemeForNewUser(m_window, m_accountController->username());
     displayUtil.setScalingForNewUser(m_window, m_accountController->username());
-
-    createCompletionFlag();
-
-    logOut();
 }
 
 void InitialStartUtil::disablePlasmaSetupAutologin()
 {
+    if (!runningAsPlasmaSetupUser()) {
+        qCInfo(PlasmaSetup) << "Not running as plasma-setup user; skipping autologin removal.";
+        return;
+    }
+
     qCInfo(PlasmaSetup) << "Removing autologin configuration for plasma-setup user.";
 
     KAuth::Action action(QStringLiteral("org.kde.plasmasetup.removeautologin"));
@@ -66,6 +80,11 @@ void InitialStartUtil::disablePlasmaSetupAutologin()
     } else {
         qCInfo(PlasmaSetup) << "Autologin configuration removed successfully.";
     }
+}
+
+bool InitialStartUtil::runningAsPlasmaSetupUser()
+{
+    return (qgetenv("USER") == "plasma-setup");
 }
 
 void InitialStartUtil::logOut()
